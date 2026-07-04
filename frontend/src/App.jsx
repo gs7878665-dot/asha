@@ -14,6 +14,8 @@ import {
   TrendingUp
 } from 'lucide-react';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+
 function App() {
   // Form State
   const [formName, setFormName] = useState('');
@@ -75,7 +77,7 @@ function App() {
 
   const fetchAshasList = async () => {
     try {
-      const response = await fetch('/api/ashas');
+      const response = await fetch(`${API_BASE_URL}/api/ashas`);
       if (response.ok) {
         const data = await response.json();
         setAllAshas(data);
@@ -90,7 +92,7 @@ function App() {
     setIsLoading(true);
     setApiError('');
     try {
-      const response = await fetch(`/api/patients/by-asha?asha_name=${encodeURIComponent(ashaName.trim())}`);
+      const response = await fetch(`${API_BASE_URL}/api/patients/by-asha?asha_name=${encodeURIComponent(ashaName.trim())}`);
       const data = await response.json();
       if (response.ok) {
         setSearchResult(data);
@@ -135,7 +137,7 @@ function App() {
     };
 
     try {
-      const response = await fetch('/api/patients', {
+      const response = await fetch(`${API_BASE_URL}/api/patients`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
