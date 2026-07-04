@@ -19,7 +19,7 @@ app.get('/api/health', (req, res) => {
 app.get('/api/ashas', async (req, res) => {
   try {
     const [rows] = await pool.query(
-      'SELECT DISTINCT asha_name FROM patients WHERE asha_name IS NOT NULL AND asha_name != "" ORDER BY asha_name ASC'
+      "SELECT DISTINCT asha_name FROM patients WHERE asha_name IS NOT NULL AND asha_name != '' ORDER BY asha_name ASC"
     );
     const ashasList = rows.map(row => row.asha_name);
     res.json(ashasList);

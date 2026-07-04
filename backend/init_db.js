@@ -7,21 +7,37 @@ async function initializeDatabase() {
 
   let connection;
   try {
-    // 1. Connect without database name first to create it if it doesn't exist
-    connection = await mysql.createConnection({
-      host: process.env.DB_HOST || 'localhost',
-      port: process.env.DB_PORT || 3306,
-      user: process.env.DB_USER || 'root',
-      password: process.env.DB_PASSWORD,
-    });
-
     const dbName = process.env.DB_NAME || 'asha_referrals';
-    console.log(`Creating database "${dbName}" if it does not exist...`);
-    await connection.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\`;`);
-    console.log(`Database "${dbName}" checked/created successfully.`);
+    const sslConfig = process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined;
 
-    // 2. Switch to the newly created/existing database
-    await connection.query(`USE \`${dbName}\`;`);
+    try {
+      console.log(`Attempting direct connection to database "${dbName}"...`);
+      connection = await mysql.createConnection({
+        host: process.env.DB_HOST || 'localhost',
+        port: process.env.DB_PORT || 3306,
+        user: process.env.DB_USER || 'root',
+        password: process.env.DB_PASSWORD,
+        database: dbName,
+        ssl: sslConfig
+      });
+      console.log(`Connected directly to database "${dbName}".`);
+    } catch (err) {
+      if (err.code === 'ER_BAD_DB_ERROR') {
+        console.log(`Database "${dbName}" does not exist. Connecting without database to create it...`);
+        connection = await mysql.createConnection({
+          host: process.env.DB_HOST || 'localhost',
+          port: process.env.DB_PORT || 3306,
+          user: process.env.DB_USER || 'root',
+          password: process.env.DB_PASSWORD,
+          ssl: sslConfig
+        });
+        await connection.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\`;`);
+        await connection.query(`USE \`${dbName}\`;`);
+        console.log(`Database "${dbName}" created successfully.`);
+      } else {
+        throw err;
+      }
+    }
 
     // 3. Create the patients table
     console.log('Creating table "patients" if it does not exist...');
