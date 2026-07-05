@@ -40,7 +40,7 @@ app.get('/api/patients/by-asha', async (req, res) => {
   try {
     // 1. Fetch patient list
     const [patients] = await pool.query(
-      'SELECT id, name, age, gender, date_referred, DATE_FORMAT(date_referred, "%Y-%m-%d") as date_formatted FROM patients WHERE asha_name = ? ORDER BY date_referred DESC, id DESC',
+      "SELECT id, name, age, gender, date_referred, DATE_FORMAT(date_referred, '%Y-%m-%d') as date_formatted FROM patients WHERE asha_name = ? ORDER BY date_referred DESC, id DESC",
       [asha_name]
     );
 
